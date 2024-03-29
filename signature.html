@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-SignPad</title>
+    <link rel="stylesheet" href="signature.css" />
+  </head>
+  <body>
+    <div class="sign">
+      <h1 id="h1">E-Signature</h1>
+    </div>
+    <div class="main">
+      <div class="utils">
+        <label for="colorpicker">Color Picker:</label>
+        <input type="color" id="colorpicker" value="#000" />
+      </div>
+      <div class="fontsize">
+        <input
+          type="range"
+          min="1"
+          max="10"
+          value="2"
+          name=""
+          id="fontsize"
+          placeholder="Font Size"
+        />
+        <span class="icon">px</span>
+      </div>
+    </div>
+    <div class="signature-container">
+      <canvas id="signature-pad" width="1000" height="500"></canvas>
+    </div>
+    <div class="button-container">
+      <button id="clear-button">Clear</button>
+      <button id="save-button">Save</button>
+    </div>
+    <script>
+      // Get the canvas element and clear and save buttons
+      const canvas = document.getElementById("signature-pad");
+      const clearButton = document.getElementById("clear-button");
+      const saveButton = document.getElementById("save-button");
+      const ctx = canvas.getContext("2d");
+      let drawing = false;
+      let prevX = 0;
+      let prevY = 0;
+
+      // Set the background color of the canvas to white
+      ctx.fillStyle = "white"; // Set the background color to white
+      ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill the entire canvas with white
+
+      // Event listeners for drawing
+      canvas.addEventListener("mousedown", (e) => {
+        drawing = true;
+        prevX = e.clientX - canvas.getBoundingClientRect().left;
+        prevY = e.clientY - canvas.getBoundingClientRect().top;
+      });
+
+      canvas.addEventListener("mousemove", (e) => {
+        if (!drawing) return;
+        draw(
+          e.clientX - canvas.getBoundingClientRect().left,
+          e.clientY - canvas.getBoundingClientRect().top
+        );
+      });
+
+      canvas.addEventListener("mouseup", () => {
+        drawing = false;
+      });
+
+      canvas.addEventListener("mouseleave", () => {
+        drawing = false;
+      });
+
+      // Function to draw on the canvas
+      function draw(x, y) {
+        ctx.beginPath();
+        ctx.strokeStyle = document.getElementById("colorpicker").value; // Use color picker value
+        ctx.lineWidth = document.getElementById("fontsize").value; // Use font size value
+        ctx.lineJoin = "round";
+        ctx.moveTo(prevX, prevY);
+        ctx.lineTo(x, y);
+        ctx.closePath();
+        ctx.stroke();
+        prevX = x;
+        prevY = y;
+      }
+
+      // Event listener for the clear button
+      clearButton.addEventListener("click", () => {
+        // Clear the canvas and fill it with white again
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      });
+
+      // Event listener for the save button
+      saveButton.addEventListener("click", () => {
+        const dataURL = canvas.toDataURL("image/png");
+        const a = document.createElement("a");
+        a.href = dataURL;
+        a.download = "signature.png";
+        a.click();
+      });
+    </script>
+  </body>
+</html>
